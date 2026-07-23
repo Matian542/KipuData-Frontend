@@ -1,0 +1,52 @@
+@import 'tailwindcss';
+
+/* Paleta extraida del logo (Proyecto_IIB/Dashboard/img/KipuData.png): verde #0da986. */
+@theme {
+  --color-primary-50: #e6f7f2;
+  --color-primary-100: #c1ebdd;
+  --color-primary-400: #1abf94;
+  --color-primary-500: #0da986;
+  --color-primary-600: #0b8a6d;
+  --color-primary-700: #096c55;
+
+  --color-ink: #111827;
+  --color-ink-muted: #6b7280;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f9fafb;
+  --color-border: #d5d9e0;
+  --color-border-strong: #b7bec9;
+
+  --font-sans: 'Segoe UI', system-ui, Roboto, sans-serif;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.2s ease-out;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--color-surface-alt);
+    color: var(--color-ink);
+  }
+
+  #root {
+    min-height: 100svh;
+  }
+}
