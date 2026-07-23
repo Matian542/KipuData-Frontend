@@ -31,8 +31,11 @@ export function LoginPage() {
     <div className="flex min-h-svh">
       <div className="hidden w-1/3 shrink-0 flex-col items-center justify-center bg-primary-500 p-10 md:flex">
         <Logo sobreVerde tamanoIcono="h-16" className="scale-125" />
-        <p className="mt-6 max-w-xs text-center text-sm text-ink/70">
-          Ventas, fiados e inventario de tu tienda de barrio, en un solo lugar.
+        <p className="mt-6 max-w-xs text-center text-lg font-semibold text-ink">
+          La evolucion de la tienda de barrio.
+        </p>
+        <p className="mt-2 max-w-xs text-center text-sm text-ink/70">
+          Gestiona ventas, inventario y la informacion de tu negocio desde una sola plataforma.
         </p>
       </div>
 
