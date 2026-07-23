@@ -1,31 +1,18 @@
-import { Card } from '../../shared/ui/Card';
+const URL_POWER_BI =
+  'https://app.powerbi.com/view?r=eyJrIjoiNmJiMDMwNDktZjhhOS00ZWZjLWE5Y2YtOThlMjRjZDJjZDcyIiwidCI6IjY4MmE0ZTZhLWE3N2YtNDk1OC1hM2FjLTllMjY2ZDE4YWEzNyIsImMiOjR9';
 
-/**
- * Vista general para el dueno (KPIs de ventas, riesgo de fiado, stock bajo, etc.).
- * Placeholder: la data y los graficos se implementan en una siguiente iteracion.
- */
+/** Vista general para el dueno: reporte de Power BI incrustado (trae su propia navegacion interna). */
 export function DashboardPage() {
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mb-6">
+    <div className="mx-auto flex h-full max-w-6xl flex-col">
+      <div className="mb-4">
         <h1 className="text-xl font-semibold text-ink">Dashboard</h1>
         <p className="text-sm text-ink-muted">Vista general del negocio para el dueno</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {['Ventas de hoy', 'Fiado pendiente', 'Productos con stock bajo', 'Clientes en riesgo'].map((titulo) => (
-          <Card key={titulo}>
-            <p className="text-sm text-ink-muted">{titulo}</p>
-            <p className="mt-2 text-2xl font-semibold text-ink">—</p>
-          </Card>
-        ))}
+      <div className="min-h-[720px] flex-1 overflow-hidden rounded-xl border-2 border-border shadow-sm">
+        <iframe title="Kipu Data - Power BI" src={URL_POWER_BI} className="h-full w-full border-0" allowFullScreen />
       </div>
-
-      <Card className="mt-6 flex min-h-64 items-center justify-center">
-        <p className="text-sm text-ink-muted">
-          Proximamente: graficos de ventas, productos mas vendidos y evolucion del fiado.
-        </p>
-      </Card>
     </div>
   );
 }
