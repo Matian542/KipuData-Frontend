@@ -1,18 +1,16 @@
-import { BarcodeFormat, BrowserMultiFormatReader } from '@zxing/browser';
-import type { IScannerControls } from '@zxing/browser';
-import { DecodeHintType } from '@zxing/library';
+import { BarcodeFormat, BrowserMultiFormatReader, HTMLCanvasElementLuminanceSource } from '@zxing/browser';
+import { BinaryBitmap, DecodeHintType, HybridBinarizer } from '@zxing/library';
 import { CameraOff, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const COOLDOWN_MS = 2000;
+const CICLO_MS = 200;
+// 0/180 (un mismo escaneo horizontal ya cubre ambos, el lector prueba las dos direcciones),
+// 90/-90 para cuando el producto queda sostenido en vertical, y +-15 para una inclinacion leve.
+const ANGULOS = [0, 90, -90, 15, -15];
 
 // Solo formatos de codigo de barras de producto (1D): evita que el lector pierda tiempo
-// probando QR/PDF417/Aztec/DataMatrix en cada frame.
-// Nota: TRY_HARDER queda deliberadamente apagado. Dispara un intento interno de rotar la
-// imagen para reintentar en otro angulo, y esa ruta tiene un bug en @zxing/browser 0.2.1
-// (HTMLCanvasElementLuminanceSource.getTempCanvasElement nunca inicializa tempCanvasElement
-// en null, asi que la comprobacion "crear si es null" nunca dispara) que lanza
-// "Could not create a Canvas element." en cada frame sin aportar nada.
+// probando QR/PDF417/Aztec/DataMatrix en cada intento.
 const HINTS = new Map<DecodeHintType, unknown>([
   [
     DecodeHintType.POSSIBLE_FORMATS,
@@ -40,43 +38,83 @@ interface Props {
   onCerrar: () => void;
 }
 
-/** Lector de codigo de barras via camara (EAN-13/UPC/Code128...), usando @zxing/browser sobre getUserMedia. */
+/** Dibuja el frame actual del video rotado `angulo` grados en `canvas`, ajustando el tamano para no recortar esquinas. */
+function dibujarFrameRotado(video: HTMLVideoElement, canvas: HTMLCanvasElement, angulo: number): void {
+  const { videoWidth: w, videoHeight: h } = video;
+  const radianes = (angulo * Math.PI) / 180;
+  const nuevoAncho = Math.ceil(Math.abs(Math.cos(radianes)) * w + Math.abs(Math.sin(radianes)) * h);
+  const nuevoAlto = Math.ceil(Math.abs(Math.sin(radianes)) * w + Math.abs(Math.cos(radianes)) * h);
+  canvas.width = nuevoAncho;
+  canvas.height = nuevoAlto;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.translate(nuevoAncho / 2, nuevoAlto / 2);
+  ctx.rotate(radianes);
+  ctx.drawImage(video, -w / 2, -h / 2);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+/** Lector de codigo de barras via camara (EAN-13/UPC/Code128...), usando @zxing sobre getUserMedia. */
 export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
   const ultimoCodigoRef = useRef<{ codigo: string; hora: number } | null>(null);
   // Serializa arranque/parada de la camara: en desarrollo React StrictMode monta-desmonta-monta
-  // el efecto, y dos decodeFromVideoDevice en paralelo sobre el mismo <video> dejaban la camara
-  // en negro (dos streams peleando por el mismo elemento). Encadenando en esta promesa nos
-  // aseguramos de que la segunda pasada espere a que la primera termine de liberar la camara.
+  // el efecto, y dos streams en paralelo sobre el mismo <video> dejaban la camara en negro.
+  // Encadenando en esta promesa nos aseguramos de que la segunda pasada espere a que la
+  // primera termine de liberar la camara antes de volver a pedirla.
   const cadenaRef = useRef<Promise<void>>(Promise.resolve());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const lector = new BrowserMultiFormatReader(HINTS);
     let cancelado = false;
-    let controls: IScannerControls | null = null;
+    let stream: MediaStream | null = null;
+    let temporizador: ReturnType<typeof setTimeout> | null = null;
+
+    function intentarCiclo() {
+      const video = videoRef.current;
+      if (!video || cancelado || video.readyState < video.HAVE_CURRENT_DATA) {
+        if (!cancelado) temporizador = setTimeout(intentarCiclo, CICLO_MS);
+        return;
+      }
+
+      for (const angulo of ANGULOS) {
+        if (cancelado) return;
+        try {
+          dibujarFrameRotado(video, canvasRef.current, angulo);
+          const bitmap = new BinaryBitmap(new HybridBinarizer(new HTMLCanvasElementLuminanceSource(canvasRef.current)));
+          const resultado = lector.decodeBitmap(bitmap);
+          const codigo = resultado.getText();
+          const ahora = Date.now();
+          const ultimo = ultimoCodigoRef.current;
+          if (!ultimo || ultimo.codigo !== codigo || ahora - ultimo.hora >= COOLDOWN_MS) {
+            ultimoCodigoRef.current = { codigo, hora: ahora };
+            onDetectado(codigo);
+          }
+          break;
+        } catch {
+          // Nada en este angulo: se intenta el siguiente. Es el resultado normal de la mayoria de los frames.
+        }
+      }
+
+      if (!cancelado) temporizador = setTimeout(intentarCiclo, CICLO_MS);
+    }
 
     cadenaRef.current = cadenaRef.current.then(async () => {
       if (cancelado) return;
       try {
-        const controlesListos = await lector.decodeFromConstraints(
-          RESTRICCIONES_CAMARA,
-          videoRef.current ?? undefined,
-          (resultado) => {
-            if (!resultado || cancelado) return;
-            const codigo = resultado.getText();
-            const ahora = Date.now();
-            const ultimo = ultimoCodigoRef.current;
-            if (ultimo && ultimo.codigo === codigo && ahora - ultimo.hora < COOLDOWN_MS) return;
-            ultimoCodigoRef.current = { codigo, hora: ahora };
-            onDetectado(codigo);
-          },
-        );
+        stream = await navigator.mediaDevices.getUserMedia(RESTRICCIONES_CAMARA);
         if (cancelado) {
-          controlesListos.stop();
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
-        controls = controlesListos;
+        const video = videoRef.current;
+        if (!video) return;
+        video.srcObject = stream;
+        await video.play();
+        intentarCiclo();
       } catch (err) {
         if (cancelado) return;
         const nombre = err instanceof Error ? err.name : '';
@@ -93,7 +131,9 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
     return () => {
       cancelado = true;
       cadenaRef.current = cadenaRef.current.then(() => {
-        controls?.stop();
+        if (temporizador) clearTimeout(temporizador);
+        stream?.getTracks().forEach((track) => track.stop());
+        if (videoRef.current) videoRef.current.srcObject = null;
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,7 +167,7 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
         )}
 
         <p className="mt-3 text-center text-xs text-ink-muted">
-          Alinea el codigo horizontal (sin inclinar) y acercalo hasta llenar el recuadro.
+          Acerca el codigo hasta llenar el recuadro; no hace falta que quede perfecto.
         </p>
       </div>
     </div>
