@@ -7,7 +7,12 @@ import { useEffect, useRef, useState } from 'react';
 const COOLDOWN_MS = 2000;
 
 // Solo formatos de codigo de barras de producto (1D): evita que el lector pierda tiempo
-// probando QR/PDF417/Aztec/DataMatrix en cada frame, y TRY_HARDER compensa angulo/distancia.
+// probando QR/PDF417/Aztec/DataMatrix en cada frame.
+// Nota: TRY_HARDER queda deliberadamente apagado. Dispara un intento interno de rotar la
+// imagen para reintentar en otro angulo, y esa ruta tiene un bug en @zxing/browser 0.2.1
+// (HTMLCanvasElementLuminanceSource.getTempCanvasElement nunca inicializa tempCanvasElement
+// en null, asi que la comprobacion "crear si es null" nunca dispara) que lanza
+// "Could not create a Canvas element." en cada frame sin aportar nada.
 const HINTS = new Map<DecodeHintType, unknown>([
   [
     DecodeHintType.POSSIBLE_FORMATS,
@@ -20,7 +25,6 @@ const HINTS = new Map<DecodeHintType, unknown>([
       BarcodeFormat.CODE_39,
     ],
   ],
-  [DecodeHintType.TRY_HARDER, true],
 ]);
 
 const RESTRICCIONES_CAMARA: MediaStreamConstraints = {
