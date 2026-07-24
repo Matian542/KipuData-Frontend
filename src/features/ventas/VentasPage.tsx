@@ -1,11 +1,13 @@
-import { ShoppingCart } from 'lucide-react';
+import { ScanLine, ShoppingCart } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { ApiError } from '../../shared/api/api-error';
 import type { MetodoPago, Producto } from '../../shared/api/types';
 import { Button } from '../../shared/ui/Button';
+import { EscanerCodigoBarras } from '../../shared/ui/EscanerCodigoBarras';
 import { Input } from '../../shared/ui/Input';
 import { useToast } from '../../shared/ui/toast-context';
 import { useClientes } from '../clientes/hooks';
+import { productosApi } from '../productos/api';
 import { useProductos } from '../productos/hooks';
 import { useSugerenciasProducto } from '../sugerencias/hooks';
 import { VentasHistorial } from './VentasHistorial';
@@ -35,6 +37,7 @@ export function VentasPage() {
   const [idCliente, setIdCliente] = useState<number | ''>('');
   const [ultimoAgregado, setUltimoAgregado] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [escaneando, setEscaneando] = useState(false);
 
   const { data: sugerencias } = useSugerenciasProducto(ultimoAgregado);
 
@@ -61,6 +64,20 @@ export function VentasPage() {
       return [...prev, { producto, cantidad: 1 }];
     });
     setUltimoAgregado(producto.id);
+  }
+
+  async function manejarCodigoEscaneado(codigo: string) {
+    try {
+      const producto = await productosApi.buscarPorCodigoBarras(codigo);
+      agregarAlCarrito(producto);
+      toast.exito(`${producto.nombre} agregado al carrito`);
+    } catch (err) {
+      if (err instanceof ApiError && err.statusCode === 404) {
+        toast.error('Codigo no registrado. Agregalo primero en Productos.');
+      } else {
+        toast.error('No se pudo buscar el producto escaneado');
+      }
+    }
   }
 
   function cambiarCantidad(idProducto: number, cantidad: number) {
@@ -105,11 +122,19 @@ export function VentasPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <Input
-            placeholder="Buscar producto para agregar..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
+                placeholder="Buscar producto para agregar..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+            <Button type="button" variante="secundario" onClick={() => setEscaneando(true)}>
+              <ScanLine size={18} />
+              Escanear
+            </Button>
+          </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {productosFiltrados.map((producto) => {
@@ -245,6 +270,15 @@ export function VentasPage() {
           </div>
         </div>
       </div>
+
+      {escaneando && (
+        <EscanerCodigoBarras
+          onDetectado={(codigo) => {
+            void manejarCodigoEscaneado(codigo);
+          }}
+          onCerrar={() => setEscaneando(false)}
+        />
+      )}
     </div>
   );
 }

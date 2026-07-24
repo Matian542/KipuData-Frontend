@@ -18,6 +18,7 @@ export interface Producto {
   nombre: string;
   idCategoria: number;
   marca: string | null;
+  codigoBarras: string | null;
   unidadMedida: string;
   precioCompra: number;
   precioVenta: number;

@@ -1,7 +1,9 @@
+import { ScanLine } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { useCategorias } from '../categorias/hooks';
 import { ApiError } from '../../shared/api/api-error';
 import { Button } from '../../shared/ui/Button';
+import { EscanerCodigoBarras } from '../../shared/ui/EscanerCodigoBarras';
 import { Input } from '../../shared/ui/Input';
 import { Modal } from '../../shared/ui/Modal';
 import { useToast } from '../../shared/ui/toast-context';
@@ -17,11 +19,13 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
   const actualizar = useActualizarProducto();
   const toast = useToast();
   const [error, setError] = useState<string | null>(null);
+  const [escaneando, setEscaneando] = useState(false);
 
   const [form, setForm] = useState<CrearProductoPayload>({
     nombre: producto?.nombre ?? '',
     idCategoria: producto?.idCategoria ?? 0,
     marca: producto?.marca ?? '',
+    codigoBarras: producto?.codigoBarras ?? '',
     unidadMedida: producto?.unidadMedida ?? 'unidad',
     precioCompra: producto?.precioCompra ?? 0,
     precioVenta: producto?.precioVenta ?? 0,
@@ -44,11 +48,13 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
     evento.preventDefault();
     setError(null);
     try {
+      const codigoBarras = form.codigoBarras?.trim();
+      const datos = { ...form, codigoBarras: codigoBarras || undefined };
       if (producto) {
-        await actualizar.mutateAsync({ id: producto.id, datos: form });
+        await actualizar.mutateAsync({ id: producto.id, datos });
         toast.exito(`Producto "${form.nombre}" actualizado`);
       } else {
-        await crear.mutateAsync(form);
+        await crear.mutateAsync(datos);
         toast.exito(`Producto "${form.nombre}" creado`);
       }
       onCerrar();
@@ -87,6 +93,26 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
           value={form.marca}
           onChange={(e) => setForm({ ...form, marca: e.target.value })}
         />
+
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium text-ink">Codigo de barras (opcional)</span>
+          <div className="flex gap-2">
+            <input
+              className="flex-1 rounded-lg border border-border px-3 py-2 text-ink outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+              value={form.codigoBarras ?? ''}
+              onChange={(e) => setForm({ ...form, codigoBarras: e.target.value })}
+              placeholder="Ej. 7861234567890"
+            />
+            <Button
+              type="button"
+              variante="secundario"
+              onClick={() => setEscaneando(true)}
+              aria-label="Escanear codigo de barras"
+            >
+              <ScanLine size={18} />
+            </Button>
+          </div>
+        </label>
 
         <label className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-ink">Unidad de medida</span>
@@ -154,6 +180,17 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
           </Button>
         </div>
       </form>
+
+      {escaneando && (
+        <EscanerCodigoBarras
+          onDetectado={(codigo) => {
+            setForm((actual) => ({ ...actual, codigoBarras: codigo }));
+            setEscaneando(false);
+            toast.exito(`Codigo detectado: ${codigo}`);
+          }}
+          onCerrar={() => setEscaneando(false)}
+        />
+      )}
     </Modal>
   );
 }

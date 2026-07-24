@@ -5,6 +5,7 @@ export interface CrearProductoPayload {
   nombre: string;
   idCategoria: number;
   marca?: string;
+  codigoBarras?: string;
   unidadMedida: string;
   precioCompra: number;
   precioVenta: number;
@@ -17,4 +18,6 @@ export const productosApi = {
   crear: (datos: CrearProductoPayload) => apiClient.post<Producto>('/productos', datos),
   actualizar: (id: number, datos: Partial<CrearProductoPayload>) =>
     apiClient.patch<Producto>(`/productos/${id}`, datos),
+  buscarPorCodigoBarras: (codigo: string) =>
+    apiClient.get<Producto>(`/productos/codigo-barras/${encodeURIComponent(codigo)}`),
 };
