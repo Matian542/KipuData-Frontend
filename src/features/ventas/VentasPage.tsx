@@ -1,10 +1,11 @@
-import { ScanLine, ShoppingCart } from 'lucide-react';
+import { CheckCircle2, ScanLine, ShoppingCart } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { ApiError } from '../../shared/api/api-error';
 import type { MetodoPago, Producto } from '../../shared/api/types';
 import { Button } from '../../shared/ui/Button';
 import { EscanerCodigoBarras } from '../../shared/ui/EscanerCodigoBarras';
 import { Input } from '../../shared/ui/Input';
+import { Modal } from '../../shared/ui/Modal';
 import { useToast } from '../../shared/ui/toast-context';
 import { useClientes } from '../clientes/hooks';
 import { productosApi } from '../productos/api';
@@ -38,6 +39,7 @@ export function VentasPage() {
   const [ultimoAgregado, setUltimoAgregado] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [escaneando, setEscaneando] = useState(false);
+  const [productoEscaneado, setProductoEscaneado] = useState<Producto | null>(null);
 
   const { data: sugerencias } = useSugerenciasProducto(ultimoAgregado);
 
@@ -70,7 +72,10 @@ export function VentasPage() {
     try {
       const producto = await productosApi.buscarPorCodigoBarras(codigo);
       agregarAlCarrito(producto);
-      toast.exito(`${producto.nombre} agregado al carrito`);
+      // Cierra el escaner y pide confirmacion antes de seguir: evita que se agregue
+      // el mismo producto 2+ veces sin querer por escaneos seguidos accidentales.
+      setEscaneando(false);
+      setProductoEscaneado(producto);
     } catch (err) {
       if (err instanceof ApiError && err.statusCode === 404) {
         toast.error('Codigo no registrado. Agregalo primero en Productos.');
@@ -136,7 +141,8 @@ export function VentasPage() {
             </Button>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <h2 className="mb-3 mt-5 text-sm font-semibold text-ink-muted">Productos frecuentes</h2>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {productosFiltrados.map((producto) => {
               const enCarrito = carrito.find((i) => i.producto.id === producto.id);
               return (
@@ -278,6 +284,29 @@ export function VentasPage() {
           }}
           onCerrar={() => setEscaneando(false)}
         />
+      )}
+
+      {productoEscaneado && (
+        <Modal titulo="Producto agregado" onCerrar={() => setProductoEscaneado(null)}>
+          <div className="flex flex-col items-center gap-2 py-2 text-center">
+            <CheckCircle2 size={40} className="text-primary-600" />
+            <p className="text-base font-semibold text-ink">{productoEscaneado.nombre}</p>
+            <p className="text-sm text-ink-muted">se agrego al carrito</p>
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variante="secundario" onClick={() => setProductoEscaneado(null)}>
+              Salir
+            </Button>
+            <Button
+              onClick={() => {
+                setProductoEscaneado(null);
+                setEscaneando(true);
+              }}
+            >
+              Seguir escaneando
+            </Button>
+          </div>
+        </Modal>
       )}
     </div>
   );
