@@ -293,7 +293,7 @@ export function VentasPage() {
             <p className="text-base font-semibold text-ink">{productoEscaneado.nombre}</p>
             <p className="text-sm text-ink-muted">se agrego al carrito</p>
           </div>
-          <div className="mt-4 flex justify-end gap-2">
+          <div className="mt-4 flex justify-end gap-4">
             <Button variante="secundario" onClick={() => setProductoEscaneado(null)}>
               Salir
             </Button>
