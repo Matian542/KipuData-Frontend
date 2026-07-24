@@ -1,5 +1,5 @@
 const URL_POWER_BI =
-  'https://app.powerbi.com/view?r=eyJrIjoiNmJiMDMwNDktZjhhOS00ZWZjLWE5Y2YtOThlMjRjZDJjZDcyIiwidCI6IjY4MmE0ZTZhLWE3N2YtNDk1OC1hM2FjLTllMjY2ZDE4YWEzNyIsImMiOjR9';
+  'https://app.powerbi.com/view?r=eyJrIjoiM2Y4MmNiNzctZDExMS00NDE0LWFkN2ItMzc1YzJjZTdjZTU1IiwidCI6IjY4MmE0ZTZhLWE3N2YtNDk1OC1hM2FjLTllMjY2ZDE4YWEzNyIsImMiOjR9';
 
 /** Vista general para el dueno: reporte de Power BI incrustado (trae su propia navegacion interna). */
 export function DashboardPage() {
