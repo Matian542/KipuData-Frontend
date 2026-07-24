@@ -191,11 +191,6 @@ export function VentasPage() {
               </div>
             </div>
           )}
-
-          <div className="mt-8">
-            <h2 className="mb-3 text-sm font-semibold text-ink-muted">Ventas recientes</h2>
-            <VentasHistorial />
-          </div>
         </div>
 
         <div className="h-fit overflow-hidden rounded-xl border-2 border-primary-200 bg-surface shadow-md">
@@ -274,6 +269,11 @@ export function VentasPage() {
               {registrarVenta.isPending ? 'Registrando...' : 'Registrar venta'}
             </Button>
           </div>
+        </div>
+
+        <div className="lg:col-span-2">
+          <h2 className="mb-3 text-sm font-semibold text-ink-muted">Ventas recientes</h2>
+          <VentasHistorial />
         </div>
       </div>
 
