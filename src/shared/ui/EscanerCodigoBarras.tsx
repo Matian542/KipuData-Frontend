@@ -13,32 +13,41 @@ interface Props {
 /** Lector de codigo de barras via camara (EAN-13/UPC/Code128...), usando @zxing/browser sobre getUserMedia. */
 export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const controlsRef = useRef<IScannerControls | null>(null);
   const ultimoCodigoRef = useRef<{ codigo: string; hora: number } | null>(null);
+  // Serializa arranque/parada de la camara: en desarrollo React StrictMode monta-desmonta-monta
+  // el efecto, y dos decodeFromVideoDevice en paralelo sobre el mismo <video> dejaban la camara
+  // en negro (dos streams peleando por el mismo elemento). Encadenando en esta promesa nos
+  // aseguramos de que la segunda pasada espere a que la primera termine de liberar la camara.
+  const cadenaRef = useRef<Promise<void>>(Promise.resolve());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const lector = new BrowserMultiFormatReader();
     let cancelado = false;
+    let controls: IScannerControls | null = null;
 
-    lector
-      .decodeFromVideoDevice(undefined, videoRef.current ?? undefined, (resultado) => {
-        if (!resultado || cancelado) return;
-        const codigo = resultado.getText();
-        const ahora = Date.now();
-        const ultimo = ultimoCodigoRef.current;
-        if (ultimo && ultimo.codigo === codigo && ahora - ultimo.hora < COOLDOWN_MS) return;
-        ultimoCodigoRef.current = { codigo, hora: ahora };
-        onDetectado(codigo);
-      })
-      .then((controls) => {
+    cadenaRef.current = cadenaRef.current.then(async () => {
+      if (cancelado) return;
+      try {
+        const controlesListos = await lector.decodeFromVideoDevice(
+          undefined,
+          videoRef.current ?? undefined,
+          (resultado) => {
+            if (!resultado || cancelado) return;
+            const codigo = resultado.getText();
+            const ahora = Date.now();
+            const ultimo = ultimoCodigoRef.current;
+            if (ultimo && ultimo.codigo === codigo && ahora - ultimo.hora < COOLDOWN_MS) return;
+            ultimoCodigoRef.current = { codigo, hora: ahora };
+            onDetectado(codigo);
+          },
+        );
         if (cancelado) {
-          controls.stop();
+          controlesListos.stop();
           return;
         }
-        controlsRef.current = controls;
-      })
-      .catch((err: unknown) => {
+        controls = controlesListos;
+      } catch (err) {
         if (cancelado) return;
         const nombre = err instanceof Error ? err.name : '';
         if (nombre === 'NotAllowedError') {
@@ -48,11 +57,14 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
         } else {
           setError('No se pudo iniciar la camara.');
         }
-      });
+      }
+    });
 
     return () => {
       cancelado = true;
-      controlsRef.current?.stop();
+      cadenaRef.current = cadenaRef.current.then(() => {
+        controls?.stop();
+      });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
