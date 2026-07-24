@@ -53,12 +53,12 @@ export function ClienteFormModal({ cliente, onCerrar }: { cliente: Cliente | nul
           onChange={(e) => setForm({ ...form, nombres: e.target.value })}
         />
         <Input
-          etiqueta="Cedula (opcional, 10 digitos)"
+          etiqueta="Cédula (opcional, 10 dígitos)"
           value={form.cedula}
           onChange={(e) => setForm({ ...form, cedula: e.target.value })}
         />
         <Input
-          etiqueta="Telefono"
+          etiqueta="Teléfono"
           value={form.telefono}
           onChange={(e) => setForm({ ...form, telefono: e.target.value })}
         />
@@ -68,7 +68,7 @@ export function ClienteFormModal({ cliente, onCerrar }: { cliente: Cliente | nul
           onChange={(e) => setForm({ ...form, barrio: e.target.value })}
         />
         <Input
-          etiqueta="Limite de credito (fiado)"
+          etiqueta="Límite de crédito (fiado)"
           type="number"
           min={0}
           step="0.01"

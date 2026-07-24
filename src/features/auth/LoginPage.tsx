@@ -23,7 +23,7 @@ export function LoginPage() {
     try {
       await iniciarSesion(nombreUsuario, contrasena);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No se pudo iniciar sesion');
+      setError(err instanceof ApiError ? err.message : 'No se pudo iniciar sesión');
     }
   }
 
@@ -32,10 +32,10 @@ export function LoginPage() {
       <div className="hidden w-1/3 shrink-0 flex-col items-center justify-center bg-primary-500 p-10 md:flex">
         <Logo sobreVerde tamanoIcono="h-16" className="scale-125" />
         <p className="mt-6 max-w-xs text-center text-lg font-semibold text-ink">
-          La evolucion de la tienda de barrio.
+          La evolución de la tienda de barrio.
         </p>
         <p className="mt-2 max-w-xs text-center text-sm text-ink/70">
-          Gestiona ventas, inventario y la informacion de tu negocio desde una sola plataforma.
+          Gestiona ventas, inventario y la información de tu negocio desde una sola plataforma.
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export function LoginPage() {
         <div className="w-full max-w-sm rounded-xl border-2 border-border bg-surface p-8 shadow-lg">
           <Logo className="justify-center md:hidden" tamanoIcono="h-12" />
 
-          <h1 className="mt-2 text-center text-lg font-semibold text-ink md:mt-0 md:text-left">Inicia sesion</h1>
+          <h1 className="mt-2 text-center text-lg font-semibold text-ink md:mt-0 md:text-left">Inicia sesión</h1>
           <p className="mb-6 text-center text-sm text-ink-muted md:text-left">
             Ingresa tus credenciales para continuar
           </p>
@@ -58,8 +58,8 @@ export function LoginPage() {
               autoComplete="username"
             />
             <Input
-              etiqueta="Contrasena"
-              placeholder="Ingresa tu contrasena"
+              etiqueta="Contraseña"
+              placeholder="Ingresa tu contraseña"
               type="password"
               value={contrasena}
               onChange={(e) => setContrasena(e.target.value)}

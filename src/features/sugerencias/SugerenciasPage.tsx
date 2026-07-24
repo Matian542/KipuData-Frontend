@@ -12,7 +12,7 @@ export function SugerenciasPage() {
         <div>
           <h1 className="text-xl font-semibold text-ink">Sugerencias de productos</h1>
           <p className="text-sm text-ink-muted">
-            Reglas de asociacion (Apriori) calculadas sobre el historial de ventas: "quien compra X tambien compra Y".
+            Reglas de asociación (Apriori) calculadas sobre el historial de ventas: "quien compra X también compra Y".
           </p>
         </div>
         <Button disabled={recalcular.isPending} onClick={() => recalcular.mutate()}>
@@ -31,9 +31,9 @@ export function SugerenciasPage() {
           <Spinner />
         </div>
       )}
-      {isError && <EstadoError mensaje="No se pudieron cargar las reglas de asociacion." />}
+      {isError && <EstadoError mensaje="No se pudieron cargar las reglas de asociación." />}
       {!isLoading && !isError && (!reglas || reglas.length === 0) && (
-        <EstadoVacio mensaje="Aun no hay reglas calculadas. Presiona 'Recalcular' despues de registrar algunas ventas." />
+        <EstadoVacio mensaje="Aún no hay reglas calculadas. Presiona 'Recalcular' después de registrar algunas ventas." />
       )}
 
       {!isLoading && reglas && reglas.length > 0 && (

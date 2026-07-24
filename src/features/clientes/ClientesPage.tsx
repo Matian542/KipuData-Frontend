@@ -29,7 +29,7 @@ export function ClientesPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-ink">Clientes y fiados</h1>
-          <p className="text-sm text-ink-muted">Cupo de credito, saldos y abonos</p>
+          <p className="text-sm text-ink-muted">Cupo de crédito, saldos y abonos</p>
         </div>
         <Button onClick={() => setClienteEnEdicion(null)}>Nuevo cliente</Button>
       </div>
@@ -79,7 +79,7 @@ export function ClientesPage() {
                     <tr>
                       <th className="px-4 py-3 font-medium">Nombre</th>
                       <th className="px-4 py-3 font-medium">Barrio</th>
-                      <th className="px-4 py-3 font-medium">Limite credito</th>
+                      <th className="px-4 py-3 font-medium">Límite crédito</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>

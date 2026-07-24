@@ -33,8 +33,8 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
     stockMinimo: producto?.stockMinimo ?? 0,
   });
 
-  // Las categorias llegan de forma asincrona; en cuanto esten listas, se
-  // selecciona la primera por defecto (solo si el formulario aun no tiene una valida).
+  // Las categorías llegan de forma asíncrona; en cuanto estén listas, se
+  // selecciona la primera por defecto (solo si el formulario aún no tiene una válida).
   useEffect(() => {
     if (!producto && form.idCategoria === 0 && categorias && categorias.length > 0) {
       setForm((actual) => ({ ...actual, idCategoria: categorias[0].id }));
@@ -74,7 +74,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
         />
 
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-ink">Categoria</span>
+          <span className="font-medium text-ink">Categoría</span>
           <select
             className="rounded-lg border border-border px-3 py-2 text-ink outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
             value={form.idCategoria}
@@ -95,7 +95,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
         />
 
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-ink">Codigo de barras (opcional)</span>
+          <span className="font-medium text-ink">Código de barras (opcional)</span>
           <div className="flex gap-2">
             <input
               className="flex-1 rounded-lg border border-border px-3 py-2 text-ink outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
@@ -107,7 +107,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
               type="button"
               variante="secundario"
               onClick={() => setEscaneando(true)}
-              aria-label="Escanear codigo de barras"
+              aria-label="Escanear código de barras"
             >
               <ScanLine size={18} />
             </Button>
@@ -129,7 +129,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
           </select>
         </label>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             etiqueta="Precio compra"
             type="number"
@@ -150,7 +150,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             etiqueta="Stock actual"
             type="number"
@@ -160,7 +160,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
             onChange={(e) => setForm({ ...form, stockActual: Number(e.target.value) })}
           />
           <Input
-            etiqueta="Stock minimo"
+            etiqueta="Stock mínimo"
             type="number"
             min={0}
             required
@@ -186,7 +186,7 @@ export function ProductoFormModal({ producto, onCerrar }: { producto: Producto |
           onDetectado={(codigo) => {
             setForm((actual) => ({ ...actual, codigoBarras: codigo }));
             setEscaneando(false);
-            toast.exito(`Codigo detectado: ${codigo}`);
+            toast.exito(`Código detectado: ${codigo}`);
           }}
           onCerrar={() => setEscaneando(false)}
         />

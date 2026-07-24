@@ -33,7 +33,7 @@ export function ProductosPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-ink">Productos</h1>
-          <p className="text-sm text-ink-muted">Catalogo, precios y stock de la tienda</p>
+          <p className="text-sm text-ink-muted">Catálogo, precios y stock de la tienda</p>
         </div>
         <Button onClick={() => setProductoEnEdicion(null)}>Nuevo producto</Button>
       </div>
@@ -56,7 +56,7 @@ export function ProductosPage() {
             <thead className="border-b border-border bg-surface-alt text-ink-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Producto</th>
-                <th className="px-4 py-3 font-medium">Categoria</th>
+                <th className="px-4 py-3 font-medium">Categoría</th>
                 <th className="px-4 py-3 font-medium">Precio venta</th>
                 <th className="px-4 py-3 font-medium">Stock</th>
                 <th className="px-4 py-3"></th>

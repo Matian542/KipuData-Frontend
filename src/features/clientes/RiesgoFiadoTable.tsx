@@ -22,7 +22,7 @@ export function RiesgoFiadoTable() {
     );
   }
   if (isError) return <EstadoError mensaje="No se pudo cargar el riesgo de fiado." />;
-  if (!riesgos || riesgos.length === 0) return <EstadoVacio mensaje="Ningun cliente tiene deuda activa." />;
+  if (!riesgos || riesgos.length === 0) return <EstadoVacio mensaje="Ningún cliente tiene deuda activa." />;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-surface">
@@ -32,7 +32,7 @@ export function RiesgoFiadoTable() {
             <th className="px-4 py-3 font-medium">Cliente</th>
             <th className="px-4 py-3 font-medium">Saldo pendiente</th>
             <th className="px-4 py-3 font-medium">% cupo usado</th>
-            <th className="px-4 py-3 font-medium">Dias sin abonar</th>
+            <th className="px-4 py-3 font-medium">Días sin abonar</th>
             <th className="px-4 py-3 font-medium">Riesgo</th>
           </tr>
         </thead>

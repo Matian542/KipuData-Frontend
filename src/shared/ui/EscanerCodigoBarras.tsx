@@ -119,9 +119,9 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
         if (cancelado) return;
         const nombre = err instanceof Error ? err.name : '';
         if (nombre === 'NotAllowedError') {
-          setError('Permiso de camara denegado. Habilitalo en el navegador para escanear.');
+          setError('Permiso de cámara denegado. Habilítalo en el navegador para escanear.');
         } else if (nombre === 'NotFoundError' || nombre === 'OverconstrainedError') {
-          setError('No se encontro una camara disponible en este dispositivo.');
+          setError('No se encontró una cámara disponible en este dispositivo.');
         } else {
           setError('No se pudo iniciar la camara.');
         }
@@ -143,12 +143,12 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-md rounded-xl bg-surface p-4 shadow-lg">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-ink">Escanear codigo de barras</h3>
+          <h3 className="text-sm font-semibold text-ink">Escanear código de barras</h3>
           <button
             type="button"
             onClick={onCerrar}
             className="rounded-full p-1 text-ink-muted hover:bg-surface-alt"
-            aria-label="Cerrar escaner"
+            aria-label="Cerrar escáner"
           >
             <X size={18} />
           </button>
@@ -167,7 +167,7 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
         )}
 
         <p className="mt-3 text-center text-xs text-ink-muted">
-          Acerca el codigo hasta llenar el recuadro; no hace falta que quede perfecto.
+          Acerca el código hasta llenar el recuadro; no hace falta que quede perfecto.
         </p>
       </div>
     </div>

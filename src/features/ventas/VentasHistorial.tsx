@@ -15,7 +15,7 @@ export function VentasHistorial() {
     );
   }
   if (isError) return <EstadoError mensaje="No se pudo cargar el historial de ventas." />;
-  if (!ventas || ventas.length === 0) return <EstadoVacio mensaje="Aun no hay ventas registradas." />;
+  if (!ventas || ventas.length === 0) return <EstadoVacio mensaje="Aún no hay ventas registradas." />;
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-surface">

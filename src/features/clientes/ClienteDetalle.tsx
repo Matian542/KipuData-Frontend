@@ -21,7 +21,7 @@ export function ClienteDetalle({ cliente }: { cliente: Cliente }) {
     setError(null);
     const valor = Number(monto);
     if (!valor || valor <= 0) {
-      setError('Ingresa un monto valido');
+      setError('Ingresa un monto válido');
       return;
     }
     try {
@@ -47,13 +47,13 @@ export function ClienteDetalle({ cliente }: { cliente: Cliente }) {
       <div>
         <h3 className="font-semibold text-ink">{saldo.nombres}</h3>
         <p className="text-sm text-ink-muted">
-          {cliente.telefono ?? 'Sin telefono'} · {cliente.barrio ?? 'Sin barrio'}
+          {cliente.telefono ?? 'Sin teléfono'} · {cliente.barrio ?? 'Sin barrio'}
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
+      <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
         <div className="rounded-lg border-2 border-border p-3">
-          <p className="text-ink-muted">Limite de credito</p>
+          <p className="text-ink-muted">Límite de crédito</p>
           <p className="font-semibold text-ink">${saldo.limiteCredito.toFixed(2)}</p>
         </div>
         <div className="rounded-lg border-2 border-border p-3">
@@ -67,7 +67,7 @@ export function ClienteDetalle({ cliente }: { cliente: Cliente }) {
           <p className="text-ink">${saldo.totalFiado.toFixed(2)}</p>
         </div>
         <div className="rounded-lg border-2 border-border p-3">
-          <p className="text-ink-muted">Credito disponible</p>
+          <p className="text-ink-muted">Crédito disponible</p>
           <p className="text-ink">${saldo.creditoDisponible.toFixed(2)}</p>
         </div>
       </div>

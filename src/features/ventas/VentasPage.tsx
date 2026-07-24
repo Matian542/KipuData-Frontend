@@ -72,13 +72,13 @@ export function VentasPage() {
     try {
       const producto = await productosApi.buscarPorCodigoBarras(codigo);
       agregarAlCarrito(producto);
-      // Cierra el escaner y pide confirmacion antes de seguir: evita que se agregue
+      // Cierra el escáner y pide confirmación antes de seguir: evita que se agregue
       // el mismo producto 2+ veces sin querer por escaneos seguidos accidentales.
       setEscaneando(false);
       setProductoEscaneado(producto);
     } catch (err) {
       if (err instanceof ApiError && err.statusCode === 404) {
-        toast.error('Codigo no registrado. Agregalo primero en Productos.');
+        toast.error('Código no registrado. Agrégalo primero en Productos.');
       } else {
         toast.error('No se pudo buscar el producto escaneado');
       }
@@ -170,7 +170,7 @@ export function VentasPage() {
           {sugerencias && sugerencias.length > 0 && (
             <div className="mt-4 rounded-lg border border-primary-100 bg-primary-50 p-3">
               <p className="mb-2 text-xs font-medium text-primary-700">
-                Clientes que compran esto tambien suelen llevar:
+                Clientes que compran esto también suelen llevar:
               </p>
               <div className="flex flex-wrap gap-2">
                 {sugerencias.map((regla) => {
@@ -236,7 +236,7 @@ export function VentasPage() {
             </div>
 
             <label className="mt-4 flex flex-col gap-1 text-sm">
-              <span className="font-medium text-ink">Metodo de pago</span>
+              <span className="font-medium text-ink">Método de pago</span>
               <select
                 className="rounded-lg border border-border px-3 py-2 text-ink outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                 value={metodoPago}
@@ -291,7 +291,7 @@ export function VentasPage() {
           <div className="flex flex-col items-center gap-2 py-2 text-center">
             <CheckCircle2 size={40} className="text-primary-600" />
             <p className="text-base font-semibold text-ink">{productoEscaneado.nombre}</p>
-            <p className="text-sm text-ink-muted">se agrego al carrito</p>
+            <p className="text-sm text-ink-muted">se agregó al carrito</p>
           </div>
           <div className="mt-4 flex justify-end gap-4">
             <Button variante="secundario" onClick={() => setProductoEscaneado(null)}>
