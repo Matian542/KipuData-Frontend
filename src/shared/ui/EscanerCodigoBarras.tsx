@@ -1,9 +1,35 @@
-import { BrowserMultiFormatReader } from '@zxing/browser';
+import { BarcodeFormat, BrowserMultiFormatReader } from '@zxing/browser';
 import type { IScannerControls } from '@zxing/browser';
+import { DecodeHintType } from '@zxing/library';
 import { CameraOff, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const COOLDOWN_MS = 2000;
+
+// Solo formatos de codigo de barras de producto (1D): evita que el lector pierda tiempo
+// probando QR/PDF417/Aztec/DataMatrix en cada frame, y TRY_HARDER compensa angulo/distancia.
+const HINTS = new Map<DecodeHintType, unknown>([
+  [
+    DecodeHintType.POSSIBLE_FORMATS,
+    [
+      BarcodeFormat.EAN_13,
+      BarcodeFormat.EAN_8,
+      BarcodeFormat.UPC_A,
+      BarcodeFormat.UPC_E,
+      BarcodeFormat.CODE_128,
+      BarcodeFormat.CODE_39,
+    ],
+  ],
+  [DecodeHintType.TRY_HARDER, true],
+]);
+
+const RESTRICCIONES_CAMARA: MediaStreamConstraints = {
+  video: {
+    facingMode: 'environment',
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+  },
+};
 
 interface Props {
   onDetectado: (codigo: string) => void;
@@ -22,15 +48,15 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const lector = new BrowserMultiFormatReader();
+    const lector = new BrowserMultiFormatReader(HINTS);
     let cancelado = false;
     let controls: IScannerControls | null = null;
 
     cadenaRef.current = cadenaRef.current.then(async () => {
       if (cancelado) return;
       try {
-        const controlesListos = await lector.decodeFromVideoDevice(
-          undefined,
+        const controlesListos = await lector.decodeFromConstraints(
+          RESTRICCIONES_CAMARA,
           videoRef.current ?? undefined,
           (resultado) => {
             if (!resultado || cancelado) return;
@@ -97,7 +123,7 @@ export function EscanerCodigoBarras({ onDetectado, onCerrar }: Props) {
         )}
 
         <p className="mt-3 text-center text-xs text-ink-muted">
-          Apunta la camara al codigo de barras del producto.
+          Alinea el codigo horizontal (sin inclinar) y acercalo hasta llenar el recuadro.
         </p>
       </div>
     </div>
